@@ -264,34 +264,34 @@
   var ROUNDS = [
     {
       id:1, title:"OSINT · Ejercicio 1",
-      prompt:"Encuentra el perfil de Instagram de John Doe.",
-      hint:"Piensa cómo sería un nombre de usuario formado por nombre y apellido, y busca ese texto exacto (entre comillas) solo dentro de la propia red social.",
-      rules:[/site:instagram\.com/, /john[_.]?doe/],
-      answer:'site:instagram.com "@john_doe"',
-      explanation:"Restringir con <code>site:</code> al dominio de la red social y buscar el usuario entre comillas acota los resultados a perfiles reales y filtra el ruido."
+      prompt:"Encuentra el perfil oficial de la NASA en Instagram.",
+      hint:"Los usuarios de Instagram se escriben con una arroba: busca ese texto exacto (entre comillas) solo dentro de la propia red social.",
+      rules:[/site:instagram\.com/, /nasa/],
+      answer:'site:instagram.com "@nasa"',
+      explanation:"Restringir con <code>site:</code> al dominio de la red social y buscar el usuario entre comillas acota los resultados a perfiles reales y filtra el ruido. Sirve igual para localizar el perfil de cualquier persona o empresa si conoces su usuario."
     },
     {
       id:2, title:"OSINT · Ejercicio 2",
-      prompt:"Busca todos los portales de inicio de sesión de Nike, omitiendo el portal www en la búsqueda.",
+      prompt:"Encuentra páginas de los subdominios de la Universidad de Oxford (ox.ac.uk), omitiendo el portal principal www.",
       hint:"Para excluir un resultado se antepone un signo menos, y un asterisco puede sustituir a cualquier subdominio.",
-      rules:[/nike\.com/, /login/, /-(site:)?www/],
-      answer:"site:*.nike.com inurl:login -site:www.nike.com",
-      explanation:"El comodín de <code>site:*.nike.com</code> cubre todos los subdominios y <code>-site:www.nike.com</code> excluye el principal, dejando a la vista entornos menos vigilados. Otra forma válida: <code>site:*/login site:nike.com -www</code>."
+      rules:[/site:(\*\.)?ox\.ac\.uk/, /-(site:|inurl:)?www/],
+      answer:"site:*.ox.ac.uk -site:www.ox.ac.uk",
+      explanation:"Es el truco clásico para enumerar subdominios con Google: <code>site:*.dominio -site:www.dominio</code> muestra páginas de todos los subdominios menos el principal. Cada subdominio nuevo que aparece (portales, laboratorios, entornos de pruebas) es una pieza más de la superficie de ataque. Otra forma válida: <code>site:ox.ac.uk -www</code>. Se complementa con crt.sh, que lo hace desde los certificados."
     },
     {
       id:3, title:"OSINT · Ejercicio 3",
-      prompt:"Encuentra los documentos Excel que tenga expuestos el dominio de la Seguridad Social.",
-      hint:"Combina dos operadores: uno que acote el dominio y otro que acote el formato del archivo (la extensión clásica de las hojas de cálculo de Excel).",
-      rules:[/site:sede\.seg-social\.gob\.es/, /(filetype|ext):xlsx?/],
-      answer:"site:sede.seg-social.gob.es filetype:xls",
-      explanation:"<code>site:</code> + <code>filetype:</code> filtra por formato dentro de un dominio concreto: así aparecen hojas de cálculo indexadas que quizá no deberían ser públicas. <code>ext:</code> es sinónimo de <code>filetype:</code>."
+      prompt:"Encuentra documentos PDF que contengan la palabra «confidential» en el dominio de Harvard (harvard.edu).",
+      hint:"Combina tres cosas: el dominio, el operador del formato del archivo y la palabra que debe aparecer en el texto del documento.",
+      rules:[/site:harvard\.edu/, /(filetype|ext):pdf/, /confidential/],
+      answer:"site:harvard.edu filetype:pdf confidential",
+      explanation:"<code>site:</code> + <code>filetype:</code> + una palabra clave es la receta clásica para encontrar documentos internos publicados por error. En tu organización, esta misma búsqueda con «confidencial», «interno» o «borrador» puede revelar informes que nadie quería hacer públicos. <code>ext:</code> es sinónimo de <code>filetype:</code>."
     },
     {
       id:4, title:"OSINT · Ejercicio 4",
-      prompt:"Encuentra todas las entradas disponibles en el dominio de WeTransfer, debajo del directorio /Downloads, publicadas a partir del 15 de abril de 2024.",
+      prompt:"Encuentra todas las entradas disponibles en el dominio de WeTransfer, debajo del directorio /Downloads, publicadas a partir del 1 de abril de 2024.",
       hint:"Hay un operador de fecha que usa el formato año-mes-día, y la ruta del directorio puede ir pegada al dominio dentro del propio site:.",
-      rules:[/wetransfer\.com\/?downloads|wetransfer\.com.*inurl:\/?downloads/, /after:2024-04-1[45]/],
-      answer:"site:wetransfer.com/downloads after:2024-04-15",
+      rules:[/wetransfer\.com\/?downloads|wetransfer\.com.*inurl:\/?downloads/, /after:2024-(03-31|04-01)/],
+      answer:"site:wetransfer.com/downloads after:2024-04-01",
       explanation:"<code>after:</code> acota por fecha y <code>site:dominio/ruta</code> restringe a un directorio concreto: útil para localizar enlaces de descarga recientes que siguen activos."
     },
     {
@@ -304,23 +304,23 @@
     },
     {
       id:6, title:"OSINT · Ejercicio 6",
-      prompt:"Encuentra presentaciones de PowerPoint o documentos de Word en el dominio del MIT (mit.edu).",
+      prompt:"Encuentra documentos PDF o presentaciones de PowerPoint (.pptx) en el dominio de Stanford (stanford.edu).",
       hint:"Para aceptar dos formatos a la vez necesitas un operador lógico, y conviene agrupar las dos condiciones con paréntesis.",
-      rules:[/site:mit\.edu/, /(filetype|ext):pptx?/, /(filetype|ext):docx?/, /\bor\b|\|/],
-      answer:"site:mit.edu (filetype:ppt OR filetype:doc)",
-      explanation:"<code>OR</code> (o el símbolo <code>|</code>) combina condiciones alternativas. Añadir también <code>pptx</code> y <code>docx</code> cubre los formatos modernos: <code>(filetype:pptx OR filetype:docx)</code>."
+      rules:[/site:stanford\.edu/, /(filetype|ext):pdf/, /(filetype|ext):pptx?/, /\bor\b|\|/],
+      answer:"site:stanford.edu (filetype:pdf OR filetype:pptx)",
+      explanation:"<code>OR</code> (o el símbolo <code>|</code>) combina condiciones alternativas: devuelve los resultados que cumplan una u otra. Conviene usar los formatos modernos (<code>pdf</code>, <code>pptx</code>, <code>docx</code>, <code>xlsx</code>): los antiguos (<code>ppt</code>, <code>doc</code>, <code>xls</code>) suelen devolver pocos o ningún resultado."
     },
     {
       id:7, title:"OSINT · Ejercicio 7",
-      prompt:"Encuentra contenidos sobre ransomware del dominio de INCIBE (incibe.es) publicados antes del 1 de enero de 2024.",
+      prompt:"Encuentra noticias sobre ransomware de El País (elpais.com) publicadas antes del 1 de enero de 2020.",
       hint:"Existe un operador de fecha simétrico al que filtra «a partir de»: este filtra hacia atrás en el tiempo y usa el mismo formato de fecha.",
-      rules:[/site:incibe\.es/, /ransomware/, /before:2024-01-01/],
-      answer:"site:incibe.es ransomware before:2024-01-01",
+      rules:[/site:elpais\.com/, /ransomware/, /before:2020-01-01/],
+      answer:"site:elpais.com ransomware before:2020-01-01",
       explanation:"<code>before:</code> y <code>after:</code> se pueden combinar para acotar una ventana de tiempo: sirve, por ejemplo, para reconstruir qué publicaba una organización antes o después de un incidente."
     }
   ];
 
-  var KEY = "nunsys-reto-osint-v4";
+  var KEY = "nunsys-reto-osint-v5";
   function fresh(){ return {screen:"play", current:0, revealed:{}, hinted:{}, typed:{}}; }
   var state = fresh();
 
